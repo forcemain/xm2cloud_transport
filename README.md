@@ -1,6 +1,6 @@
 # xm2cloud_event_agent
 #### 简单介绍:
->[xm2cloud_event_agent](https://github.com/xmdevops/xm2cloud_event_agent) 主要模拟Logstash软件架构实现的P2P监控Agent,兼容PY2.6+
+>[xm2cloud_event_agent](https://github.com/xmdevops/xm2cloud_event_agent) 主要模拟Logstash软件架构实现的New_P2P监控Agent,兼容PY2.6+
 
 ***
 
