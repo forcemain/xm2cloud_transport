@@ -11,8 +11,8 @@ from agent.filter.base import register_as_handler
 class Default(object):
     _ins = None
 
-    def __init__(self, debug=True):
-        self.debug = debug
+    def __init__(self, *args, **kwargs):
+        self.debug = kwargs.get('debug', False)
 
     def __new__(cls, *args, **kwargs):
         cls._ins = cls._ins or super(Default, cls).__new__(cls, *args, **kwargs)

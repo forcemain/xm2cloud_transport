@@ -11,10 +11,9 @@ from agent.libs.p2p_jsonrpc.client import Client
 class JsonRpc(Client):
     _ins = None
 
-    def __init__(self, host=None, port=None, username=None, password=None, queue=None, requests=None):
-        super(JsonRpc, self).__init__(host=host, port=port, username=username, password=password, queue=queue)
-
-        self.requests = requests
+    def __init__(self, *args, **kwargs):
+        super(JsonRpc, self).__init__(*args, **kwargs)
+        self.requests = kwargs.get('requests', [])
 
     def __new__(cls, *args, **kwargs):
         cls._ins = cls._ins or super(JsonRpc, cls).__new__(cls, *args, **kwargs)
@@ -24,6 +23,7 @@ class JsonRpc(Client):
     def pull_data(self):
         if not self.requests:
             return
+
         while True:
             if self.state.nonce is not None:
                 break

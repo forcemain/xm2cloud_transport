@@ -1,0 +1,202 @@
+metric rules:
+    <namespace>.<instrumented section>.<target (noun)>.<action (past tense verb)>
+
+    accounts.authentication.password.attempted
+    accounts.authentication.password.succeeded
+    accounts.authentication.password.failed
+    accounts.authentication.password.failure.no_email_found
+    accounts.authentication.password.failure.password_check_failed
+    accounts.authentication.password.failure.password_reset_required
+
+node example:
+{
+    u'result': [
+        {
+            u'node': u'dnssvr',
+            u'band-max': 300000,
+            u'domain': u'dnssvr.cn',
+            u'band': 0,
+            u'mem': 0,
+            u'ip': u'10.2.5.51',
+            u'cpu': 0,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'type': u'master',
+            u'port': 9255
+        },
+        {
+            u'node': u'dnssvr',
+            u'band-max': 300000,
+            u'domain': u'dnssvr.root',
+            u'band': 0,
+            u'mem': 0,
+            u'ip': u'10.2.5.51',
+            u'cpu': 0,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'type': u'',
+            u'port': 10361
+        }
+    ],
+    u'id': 625025805,
+    u'method': u'xmcloud/service/node/stat'
+}
+
+domain example:
+{
+    u'result': [
+        {
+            u'node': u'logsvr',
+            u'band-max': 300000,
+            u'domain': u'logsvr.cn',
+            u'band': 125,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 7,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 0,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 15155
+        },
+        {
+            u'node': u'proxysvr',
+            u'band-max': 300000,
+            u'domain': u'proxysvr.pssvr.cn',
+            u'band': 159,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 8,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 100,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 24561
+        },
+        {
+            u'node': u'proxysvr',
+            u'band-max': 300000,
+            u'domain': u'proxysvr.natsvr.cn',
+            u'band': 159,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 8,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 100,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 29659
+        },
+        {
+            u'node': u'datasvr',
+            u'band-max': 300000,
+            u'domain': u'datasvr.cn',
+            u'band': 125,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 7,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 0,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 30332
+        },
+        {
+            u'node': u'nattestsvr',
+            u'band-max': 300000,
+            u'domain': u'nattestsvr.cn',
+            u'band': 91,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 7,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 0,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 31995
+        },
+        {
+            u'node': u'nattestsvr',
+            u'band-max': 300000,
+            u'domain': u'nattestsvr.cn',
+            u'band': 124,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 7,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 0,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 4215
+        },
+        {
+            u'node': u'natsvr',
+            u'band-max': 300000,
+            u'domain': u'natsvr.cn',
+            u'band': 124,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 7,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 100000,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 7988
+        },
+        {
+            u'node': u'pssvr',
+            u'band-max': 300000,
+            u'domain': u'pssvr.cn',
+            u'band': 228,
+            u'mem': 15,
+            u'ip': u'10.2.5.51',
+            u'cpu': 9,
+            u'mem-max': 99,
+            u'cpu-max': 99,
+            u'conns-max': 10000,
+            u'conns': 0,
+            u'type': u'master',
+            u'port': 9394
+        }
+    ],
+    u'id': 757627411,
+    u'method': u'xmcloud/service/domain/stat'
+}
+
+metric_example:
+<ip>.replace('.', '-').cpu
+                      .cpu-max
+                      .mem
+                      .mem-max
+                      .band
+                      .band-max
+<ip>.replace('.', '-').dnssvr
+                          .conns
+                          .conns-max
+                      .logsvr
+                          .conns
+                          .conns-max
+                      .proxysvr
+                          .conns
+                          .conns-max
+                      .datasvr
+                          .conns
+                          .conns-max
+                      .nattestsvr
+                          .conns
+                          .conns-max
+                      .natsvr
+                          .conns
+                          .conns-max
+                      .pssvr
+                          .conns
+                          .conns-max
+
+Now the method has not response code, so response code metric further perfect...

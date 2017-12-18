@@ -20,7 +20,7 @@ logging.config.fileConfig(log_ini)
 
 
 def create_app():
-    _app = Agent(pull_interval=5)
+    _app = Agent(pull_interval=5, debug=True)
 
     return _app
 

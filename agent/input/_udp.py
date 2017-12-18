@@ -11,10 +11,12 @@ from agent.libs.socket_server.adapter import Server
 
 
 class State(object):
+    mark = None
     # for TcpServerRequestHandler use
     queue = None
     # for judge server is running
     isrun = False
+    debug = False
 
 
 class UdpServerRequestHandler(DatagramRequestHandler):
@@ -25,9 +27,14 @@ class UdpServerRequestHandler(DatagramRequestHandler):
         line = self.rfile.readline()
         fmtdata = (self.__class__.__name__, self.handle.__name__, line)
         msgdata = 'input-{0}-handler-{1} recv data, data={2}'.format(*fmtdata)
-        logging.debug(msgdata)
+        State.debug and logging.debug(msgdata)
 
-        State.queue.put(line)
+        filter_data = {
+            'mark': State.mark,
+            'data': line
+        }
+
+        State.queue.put(filter_data)
 
 
 @register_as_handler(name='udp')
@@ -40,14 +47,16 @@ class UdpServer(object):
         self.state = State
 
         # for write data back when recv data
+        self.state.mark = kwargs.get('mark', 'default')
         self.state.queue = self.queue = kwargs.get('queue')
+        self.state.debug = self.debug = kwargs.get('debug', False)
 
         if self.state.isrun is False:
             self.serv = Server('nbtudp')
             self.serv.reg_request_handler(UdpServerRequestHandler)
             self.start()
         else:
-            logging.warning('{0} has already running, ignore'.format(self.__class__.__name__))
+            self.debug and logging.warning('{0} has already running, ignore'.format(self.__class__.__name__))
 
     def __new__(cls, *args, **kwargs):
         cls._ins = cls._ins or super(UdpServer, cls).__new__(cls, *args, **kwargs)

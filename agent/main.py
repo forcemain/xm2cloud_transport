@@ -15,8 +15,9 @@ from agent.settings import AGENT_INPUT, AGENT_OUTPUT, AGENT_FILTER
 
 
 class Agent(object):
-    def __init__(self, pull_interval=5):
+    def __init__(self, pull_interval=5, debug=False):
 
+        self.debug = debug
         self.input = None
         self.filter = None
         self.output = None
@@ -58,14 +59,16 @@ class Agent(object):
         p.daemon = True
         p.start()
 
-        logging.debug('{0} start input handlers ...'.format(self.__class__.__name__))
+        self.debug and logging.debug('{0} start input handlers ...'.format(self.__class__.__name__))
 
     def __set_output(self):
         def target():
             while True:
-                data = self.oqueue.get()
+                filter_data = self.oqueue.get()
+                mark, data = filter_data['mark'], filter_data['data']
+                outputlist = AGENT_OUTPUT[mark]
                 # push_data must be realized in output handler
-                task_list = Task.create_from_conf(output_ins, AGENT_OUTPUT, 'push_data')
+                task_list = Task.create_from_conf(output_ins, outputlist, 'push_data')
                 if not task_list:
                     continue
                 list_task = []
@@ -80,16 +83,18 @@ class Agent(object):
         p.daemon = True
         p.start()
 
-        logging.debug('{0} start out handlers ...'.format(self.__class__.__name__))
+        self.debug and logging.debug('{0} start out handlers ...'.format(self.__class__.__name__))
 
     def __set_filter(self):
         def target():
             while True:
-                data = self.iqueue.get()
-                task_list = Task.create_from_conf(filter_ins, AGENT_FILTER, 'filter_data')
-                filtered_data = data
+                output_data = self.iqueue.get()
+                mark, data = output_data['mark'], output_data['data']
+                filterlist = AGENT_FILTER.get(mark, 'default')
+                task_list = Task.create_from_conf(filter_ins, filterlist, 'filter_data')
+                filtered_data = {'mark': mark, 'data': data}
                 for task in task_list:
-                    filtered_data = task(filtered_data)
+                    filtered_data = {'mark': mark, 'data': task(filtered_data)}
 
                 self.oqueue.put(filtered_data)
 
@@ -97,10 +102,10 @@ class Agent(object):
         p.daemon = True
         p.start()
 
-        logging.debug('{0} start filter handlers ...'.format(self.__class__.__name__))
+        self.debug and logging.debug('{0} start filter handlers ...'.format(self.__class__.__name__))
 
     def loop(self):
-        logging.debug('{0} start successfully!'.format(self.__class__.__name__))
+        self.debug and logging.debug('{0} start successfully!'.format(self.__class__.__name__))
         # as main block process
         while True:
             time.sleep(1)

@@ -7,19 +7,26 @@ import time
 import base64
 import socket
 import random
-import logging
 import hashlib
 import logging
 import threading
 
 
-from Queue import Queue
 from agent.libs.p2p_jsonrpc.http import pack_post_data, unblock_mode_recv
 
 
 class State(object):
     nonce = None
     token = None
+    lock = threading.Lock()
+    connected = False
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    @classmethod
+    def re_connect(cls, host, port):
+        cls.sock.connect((host, port))
 
 
 class Client(object):
@@ -27,20 +34,26 @@ class Client(object):
     _min = 1
     _max = pow(2, 31)
 
-    def __init__(self, host=None, port=None, username=None, password=None, queue=None):
+    def __init__(self, *args, **kwargs):
+        # for debug, default is off
+        self.debug = kwargs.get('debug', False)
+
+        # for filter and output
+        self.mark = kwargs.get('mark', 'default')
+
         # for output
-        self.queue = queue
+        self.queue = kwargs.get('queue')
+
+        # for state
+        self.state = State
 
         # for nonce and token
-        self.state = State
-        self.username = username
-        self.password = password
+        self.username = kwargs.get('username')
+        self.password = kwargs.get('password')
 
         # for conn json-rpc server
-        self.host = host
-        self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((host, port))
+        self.host = kwargs.get('host')
+        self.port = kwargs.get('port')
 
         # unblocking send or recv
         self.start()
@@ -57,8 +70,15 @@ class Client(object):
         return request_id, session_id
 
     def __postdata(self, uri, **kwargs):
+        with self.state.lock:
+            if not self.state.connected:
+                self.state.re_connect(self.host, self.port)
+                self.state.connected = True
         packed_data = pack_post_data(uri, **kwargs)
-        self.sock.sendall(packed_data)
+        try:
+            self.state.sock.sendall(packed_data)
+        except socket.error as e:
+            self.state.connected = False
 
     def __strs_md5(self, md5):
         hex_str_list = []
@@ -89,7 +109,7 @@ class Client(object):
 
     def __auth_req_handler(self, data):
         fmtdata = (self.__class__.__name__, self.__auth_req_handler.__name__, data)
-        logging.debug('{0}.{1} recv data, data={2}'.format(*fmtdata))
+        self.debug and logging.debug('{0}.{1} recv data, data={2}'.format(*fmtdata))
 
         auth_keys = ['nonce', 'token']
         data_rets = data['result']
@@ -99,18 +119,26 @@ class Client(object):
             setattr(self.state, key, data_rets[key])
 
     def __domain_req_handler(self, data):
-        fmtdata = (self.__class__.__name__, self.__domain_req_handler.__name__, data)
-        logging.debug('{0}.{1} recv data, data={2}'.format(*fmtdata))
+        filter_data = {
+            'mark': self.mark,
+            'data': data,
+        }
 
-        clear_data = json.dumps(data)
-        self.queue.put(clear_data)
+        fmtdata = (self.__class__.__name__, self.__domain_req_handler.__name__, filter_data)
+        self.debug and logging.debug('{0}.{1} recv data, data={2}'.format(*fmtdata))
+
+        self.queue.put(filter_data)
 
     def __node_req_handler(self, data):
-        fmtdata = (self.__class__.__name__, self.__node_req_handler.__name__, data)
-        logging.debug('{0}.{1} recv data, data={2}'.format(*fmtdata))
+        filter_data = {
+            'mark': self.mark,
+            'data': data
+        }
 
-        clear_data = json.dumps(data)
-        self.queue.put(clear_data)
+        fmtdata = (self.__class__.__name__, self.__node_req_handler.__name__, filter_data)
+        self.debug and logging.debug('{0}.{1} recv data, data={2}'.format(*fmtdata))
+
+        self.queue.put(filter_data)
 
     def __dispatch(self, data):
         route_map = {
@@ -120,11 +148,11 @@ class Client(object):
         }
         fmtdata = (self.__class__.__name__, self.__dispatch.__name__, data)
         if not self.__validate(data):
-            logging.error('{0}.{1} recived invalid data, data={2}'.format(*fmtdata))
+            self.debug and logging.error('{0}.{1} recived invalid data, data={2}'.format(*fmtdata))
             return
         handler = route_map.get(data['method'], None)
         if handler is None:
-            logging.error('{0}.{1} can not found handler, data={2}'.format(*fmtdata))
+            self.debug and logging.error('{0}.{1} can not found handler, data={2}'.format(*fmtdata))
             return
 
         handler(data)
@@ -133,11 +161,17 @@ class Client(object):
         def target():
             while True:
                 try:
-                    json_data = unblock_mode_recv(self.sock)
+                    json_data = unblock_mode_recv(self.state.sock)
                     dict_data = json.loads(json_data)
-                except (socket.error, TypeError, ValueError):
+                except socket.error:
                     """
                     socket.error, maybe connect is closed
+                    """
+                    self.state.connected = False
+                    time.sleep(1)
+                    continue
+                except (TypeError, ValueError):
+                    """
                     TypeError, maybe json type error
                     ValueError, maybe not json
                     
