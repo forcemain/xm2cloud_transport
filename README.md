@@ -14,6 +14,7 @@
 #### 快速安装:
 `git clone https://github.com/xmdevops/xm2cloud_event_agent` \
 `cd xm2cloud_event_agent` \
+`pip -r requirements.txt` \
 `python manage.py` 
 
 ***
