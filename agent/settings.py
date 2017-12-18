@@ -108,7 +108,7 @@ AGENT_OUTPUT = {
         {
             'engine': 'graphite',
             'conf': {
-                'host': '123.59.27.192',
+                'host': '10.2.5.51',
                 'port': 2004,
                 'debug': True
             }
