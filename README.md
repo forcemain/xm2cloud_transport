@@ -186,7 +186,7 @@ KeyboardInterrupt
 ***
 
 #### 指标图示:
-
+![metric&char.png](https://raw.githubusercontent.com/xmdevops/xm2cloud_event_agent/master/docs/design/metric%26char.png)
 ***
 
 #### Copyright:
