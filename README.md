@@ -1,6 +1,6 @@
 # xm2cloud_event_agent
 #### 简单介绍:
->[xm2cloud_event_agent](https://github.com/xmdevops/xm2cloud_event_agent) 主要模拟Logstash软件架构的思路实现,目前主要用于APM监控,兼容PY2.6+
+>[xm2cloud_event_agent](https://github.com/xmdevops/xm2cloud_event_agent) 主要模拟Logstash软件架构的思路实现,目前主要用于APM监控前端,兼容PY2.6+
 
 ***
 
