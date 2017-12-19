@@ -21,12 +21,12 @@ class State(object):
     lock = threading.Lock()
     connected = False
     startrecv = False
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     @classmethod
     def re_connect(cls, host, port):
+        cls.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cls.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        cls.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         cls.sock.connect((host, port))
 
 
@@ -165,8 +165,9 @@ class Client(object):
                 try:
                     json_data = unblock_mode_recv(self.state.sock)
                     dict_data = json.loads(json_data)
-                except socket.error:
+                except (socket.error, AttributeError):
                     """
+                    AttributeError, maybe sock is not init
                     socket.error, maybe connect is closed
                     """
                     self.state.connected = False

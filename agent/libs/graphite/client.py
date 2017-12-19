@@ -11,12 +11,12 @@ from threading import Lock
 class State(object):
     lock = Lock()
     connected = False
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     @classmethod
     def re_connect(cls, host, port):
+        cls.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cls.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        cls.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         cls.sock.connect((host, port))
 
 
@@ -25,6 +25,10 @@ class Client(object):
         self.state = State
         self.host = kwargs.get('host')
         self.port = kwargs.get('port')
+        print '=' * 100
+        print 'host: ', self.host
+        print 'port: ', self.port
+        print '=' * 100
         self.debug = kwargs.get('debug', False)
 
     def __new__(cls, *args, **kwargs):
@@ -35,6 +39,10 @@ class Client(object):
     def write(self, metrics=[]):
         with self.state.lock:
             if not self.state.connected:
+                print '*' * 100
+                print 'rehost: ', self.host
+                print 'report: ', self.port
+                print '*' * 100
                 self.state.re_connect(self.host, self.port)
                 self.state.connected = True
 
