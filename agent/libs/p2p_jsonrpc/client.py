@@ -20,6 +20,7 @@ class State(object):
     token = None
     lock = threading.Lock()
     connected = False
+    startrecv = False
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -56,7 +57,8 @@ class Client(object):
         self.port = kwargs.get('port')
 
         # unblocking send or recv
-        self.start()
+        if not self.state.startrecv:
+            self.start()
 
     def __new__(cls, *args, **kwargs):
         cls._ins = cls._ins or super(Client, cls).__new__(cls, *args, **kwargs)
@@ -181,9 +183,14 @@ class Client(object):
                     continue
 
                 self.__dispatch(dict_data)
+            # for recv thread stoped
+            self.state.startrecv = False
+
         t = threading.Thread(target=target)
         t.setDaemon(True)
         t.start()
+        # for recv thread started
+        self.state.startrecv = True
 
     def auth_nonce(self):
         method = 'xmcloud/service/login'
