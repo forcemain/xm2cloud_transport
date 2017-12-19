@@ -25,6 +25,7 @@
 * output,已默认实现default/redis/graphite处理器,支持装饰器自动注册自定义处理器
 
 #### 更新日志:
+* 2017-12-19 修复JsonRpc异步Client接收线程重复新建,导致error: can't start new thread
 * 2017-12-18 将Carbon/JsonRpc Client统一改为长连接模式,避免不必要的开销
 * 2017-12-18 为filter组件新增xmcloud3_service_jsonrpc处理器,处理xmcloud平台服务监控数据
 * 2017-12-18 为output组件新增graphite处理器,支持批量指标压缩发送
