@@ -12,8 +12,8 @@
 ***
 
 #### 快速安装:
-`git clone https://github.com/xmdevops/xm2cloud_event_agent` \
-`cd xm2cloud_event_agent` \
+`git clone https://github.com/xmdevops/xm2cloud_transport` \
+`cd xm2cloud_transport` \
 `pip -r requirements.txt` \
 `python manage.py` 
 
@@ -187,7 +187,7 @@ KeyboardInterrupt
 ***
 
 #### 指标图示:
-![metric&char.png](https://raw.githubusercontent.com/xmdevops/xm2cloud_event_agent/master/docs/design/metric%26char.png)
+![metric&char.png](https://raw.githubusercontent.com/xmdevops/xm2cloud_transport/master/docs/design/metric%26char.png)
 ***
 
 #### Copyright:
