@@ -174,7 +174,7 @@ class Client(object):
                     socket.error, maybe connect is closed
                     """
                     fmtdata = (self.__class__.__name__,  e)
-                    self.debug and logging.error('{0} recv with exception, exp={1}'.format(fmtdata))
+                    self.debug and logging.error('{0} recv with exception, exp={1}'.format(*fmtdata))
                     self.state.connected = False
                     time.sleep(1)
                     continue
@@ -186,7 +186,7 @@ class Client(object):
                     ignore, continue
                     """
                     fmtdata = (self.__class__.__name__, e)
-                    self.debug and logging.error('{0} recv with exception, exp={1}'.format(fmtdata))
+                    self.debug and logging.error('{0} recv with exception, exp={1}'.format(*fmtdata))
                     time.sleep(1)
                     continue
 
@@ -201,7 +201,7 @@ class Client(object):
         self.state.startrecv = True
 
     def auth_nonce(self):
-        method = '{0}/login'.format(self.juri)
+        method = '{0}/login'.format(self.juri.rstrip('/'))
         request_id, session_id = self.__randomid()
 
         body = {
@@ -223,7 +223,7 @@ class Client(object):
         self.__postdata(self.juri, method='POST', headers=headers, body=js_body)
 
     def auth_login(self):
-        method = '{0}/login'.format(self.juri)
+        method = '{0}/login'.format(self.juri.lstrip('/'))
         request_id, session_id = self.__randomid()
         password_enc = self.__encpasswd(self.state.nonce, self.password)
 
