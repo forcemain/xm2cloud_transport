@@ -25,10 +25,6 @@ class Client(object):
         self.state = State
         self.host = kwargs.get('host')
         self.port = kwargs.get('port')
-        print '=' * 100
-        print 'host: ', self.host
-        print 'port: ', self.port
-        print '=' * 100
         self.debug = kwargs.get('debug', False)
 
     def __new__(cls, *args, **kwargs):
@@ -39,10 +35,6 @@ class Client(object):
     def write(self, metrics=[]):
         with self.state.lock:
             if not self.state.connected:
-                print '*' * 100
-                print 'rehost: ', self.host
-                print 'report: ', self.port
-                print '*' * 100
                 self.state.re_connect(self.host, self.port)
                 self.state.connected = True
 
