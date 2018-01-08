@@ -65,6 +65,7 @@ AGENT_INPUT = [
             'mark': 'xmcloud3_service_jsonrpc',
             'host': 'xmcloud.xmsecu.com',
             'port': 9353,
+            'juri': '/xmcloud/service',
             'username': 'limanman',
             'password': 'xmcloudsuperuser',
             'requests': [
@@ -108,7 +109,7 @@ AGENT_OUTPUT = {
         {
             'engine': 'graphite',
             'conf': {
-                'host': '10.2.5.51',
+                'host': '123.59.27.192',
                 'port': 2004,
                 'debug': True
             }

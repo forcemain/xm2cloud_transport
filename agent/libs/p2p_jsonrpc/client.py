@@ -39,6 +39,9 @@ class Client(object):
         # for debug, default is off
         self.debug = kwargs.get('debug', False)
 
+        # for jsonrpc uri
+        self.juri = kwargs.get('juri', '/xmcloud/service')
+
         # for filter and output
         self.mark = kwargs.get('mark', 'default')
 
@@ -165,21 +168,25 @@ class Client(object):
                 try:
                     json_data = unblock_mode_recv(self.state.sock)
                     dict_data = json.loads(json_data)
-                except (socket.error, AttributeError):
+                except (socket.error, AttributeError) as e:
                     """
                     AttributeError, maybe sock is not init
                     socket.error, maybe connect is closed
                     """
+                    fmtdata = (self.__class__.__name__,  e)
+                    self.debug and logging.error('{0} recv with exception, exp={1}'.format(fmtdata))
                     self.state.connected = False
                     time.sleep(1)
                     continue
-                except (TypeError, ValueError):
+                except (TypeError, ValueError) as e:
                     """
                     TypeError, maybe json type error
                     ValueError, maybe not json
                     
                     ignore, continue
                     """
+                    fmtdata = (self.__class__.__name__, e)
+                    self.debug and logging.error('{0} recv with exception, exp={1}'.format(fmtdata))
                     time.sleep(1)
                     continue
 
@@ -194,8 +201,7 @@ class Client(object):
         self.state.startrecv = True
 
     def auth_nonce(self):
-        method = 'xmcloud/service/login'
-        uri = '/{0}'.format(method)
+        method = '{0}/login'.format(self.juri)
         request_id, session_id = self.__randomid()
 
         body = {
@@ -214,11 +220,10 @@ class Client(object):
             'Content-Length': len(js_body),
         }
 
-        self.__postdata(uri, method='POST', headers=headers, body=js_body)
+        self.__postdata(self.juri, method='POST', headers=headers, body=js_body)
 
     def auth_login(self):
-        method = 'xmcloud/service/login'
-        uri = '/{0}'.format(method)
+        method = '{0}/login'.format(self.juri)
         request_id, session_id = self.__randomid()
         password_enc = self.__encpasswd(self.state.nonce, self.password)
 
@@ -241,10 +246,9 @@ class Client(object):
             'Content-Length': len(js_body),
         }
 
-        self.__postdata(uri, method='POST', headers=headers, body=js_body)
+        self.__postdata(self.juri, method='POST', headers=headers, body=js_body)
 
     def query(self, method=None, params=None):
-        uri = '/{0}'.format(method)
         request_id, session_id = self.__randomid()
 
         body = {
@@ -264,4 +268,4 @@ class Client(object):
             'Content-Length': len(js_body),
         }
 
-        self.__postdata(uri, method='POST', headers=headers, body=js_body)
+        self.__postdata(self.juri, method='POST', headers=headers, body=js_body)
