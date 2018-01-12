@@ -154,6 +154,9 @@ class Client(object):
         fmtdata = (self.__class__.__name__, self.__dispatch.__name__, data)
         if not self.__validate(data):
             self.debug and logging.error('{0}.{1} recived invalid data, data={2}'.format(*fmtdata))
+            # may be server active closed
+            self.state.nonce = None
+            self.state.token = None
             return
         handler = route_map.get(data['method'], None)
         if handler is None:
