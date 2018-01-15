@@ -10,8 +10,8 @@ import re
 
 
 class HttpStream(object):
+    __vre = re.compile(r'HTTP/(?P<p>\d+).(?P<m>\d+)')
     __len = re.compile(r'Content-Length: (?P<n>[0-9]+)')
-    __vre = re.compile(r'HTTP/(?P<p>\d+).(?P<m>\d+) (?P<n>\d{3}) (?P<s>\w+)')
     __buf = ''
     __res = []
 
@@ -34,7 +34,7 @@ class HttpStream(object):
         return match.expand(tpl)
 
     def __version_match_expand(self, match):
-        tpl = 'HTTP/\g<p>.\g<m> \g<n> \g<s>'
+        tpl = 'HTTP/\g<p>.\g<m>'
 
         return match.expand(tpl)
 
