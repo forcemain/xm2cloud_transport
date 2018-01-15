@@ -24,7 +24,6 @@ class State(object):
 
     @classmethod
     def re_connect(cls, host, port):
-        # maybe server active close connection, auto reack nonce/token
         cls.nonce = None
         cls.token = None
         cls.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -204,7 +203,7 @@ class Client(object):
         self.state.startrecv = True
 
     def auth_nonce(self):
-        method = '{0}/login'.format(self.juri.rstrip('/'))
+        method = '{0}/login'.format(self.juri.lstrip('/'))
         request_id, session_id = self.__randomid()
 
         body = {
