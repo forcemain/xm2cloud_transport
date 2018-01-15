@@ -24,6 +24,9 @@ class State(object):
 
     @classmethod
     def re_connect(cls, host, port):
+        # maybe server active close connection, auto reack nonce/token
+        cls.nonce = None
+        cls.token = None
         cls.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         cls.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         cls.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -154,9 +157,6 @@ class Client(object):
         fmtdata = (self.__class__.__name__, self.__dispatch.__name__, data)
         if not self.__validate(data):
             self.debug and logging.error('{0}.{1} recived invalid data, data={2}'.format(*fmtdata))
-            # may be server active closed
-            self.state.nonce = None
-            self.state.token = None
             return
         handler = route_map.get(data['method'], None)
         if handler is None:
