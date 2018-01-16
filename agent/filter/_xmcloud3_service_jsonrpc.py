@@ -53,7 +53,7 @@ class Basics(object):
         self.mem_max = mem_max
 
     def get_band(self):
-        return  self.band
+        return self.band
 
     def set_band(self, band):
         self.band = band
@@ -69,7 +69,7 @@ class Basics(object):
             'ip': self.get_ip(),
             'cpu': self.get_cpu(),
             'cpu-max': self.get_cpu_max(),
-            'mem': self.get_cpu_max(),
+            'mem': self.get_mem(),
             'mem-max': self.get_mem_max(),
             'band': self.get_band(),
             'band-max': self.get_band_max()
