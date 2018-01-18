@@ -3,6 +3,7 @@
 import socket
 import struct
 import pickle
+import logging
 
 
 from threading import Lock
@@ -35,8 +36,13 @@ class Client(object):
     def write(self, metrics=[]):
         with self.state.lock:
             if not self.state.connected:
-                self.state.re_connect(self.host, self.port)
-                self.state.connected = True
+                try:
+                    self.state.re_connect(self.host, self.port)
+                    self.state.connected = True
+                except socket.error as e:
+                    fmtdata = (self.__class__.__name__, self.write.__name__, self.host, self.port)
+                    self.debug and logging.error('{0}.{1} connect {2}:{3} failed, reconnect'.format(*fmtdata))
+                    return
 
         payload = pickle.dumps(metrics, protocol=2)
         # for 4 bytes header，encapsulation package
