@@ -79,8 +79,14 @@ class Client(object):
     def __postdata(self, uri, **kwargs):
         with self.state.lock:
             if not self.state.connected:
-                self.state.re_connect(self.host, self.port)
-                self.state.connected = True
+                try:
+                    self.state.re_connect(self.host, self.port)
+                    self.state.connected = True
+                except socket.error as e:
+                    fmtdata = (self.__class__.__name__, self.__postdata.__name__, self.host, self.port)
+                    self.debug and logging.error('{0}.{1} connect {2}:{3} failed, reconnect'.format(*fmtdata))
+                    return
+
         packed_data = pack_post_data(uri, **kwargs)
         try:
             self.state.sock.sendall(packed_data)
@@ -155,6 +161,11 @@ class Client(object):
         }
         fmtdata = (self.__class__.__name__, self.__dispatch.__name__, data)
         if not self.__validate(data):
+            """
+            Validate error, maybe token Invalid to cause auth failed
+            """
+            self.state.nonce = None
+            self.state.token = None
             self.debug and logging.error('{0}.{1} recived invalid data, data={2}'.format(*fmtdata))
             return
         handler = route_map.get(data['method'], None)
