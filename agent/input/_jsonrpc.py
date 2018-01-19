@@ -25,16 +25,15 @@ class JsonRpc(Client):
             return
 
         while True:
-            if self.state.nonce is not None:
-                break
-            self.auth_nonce()
-            time.sleep(2)
-
-        while True:
-            if self.state.token is not None:
-                break
-            self.auth_login()
-            time.sleep(2)
+            if self.state.nonce is None:
+                self.auth_nonce()
+                time.sleep(5)
+                continue
+            if self.state.token is None:
+                self.auth_login()
+                time.sleep(2)
+                continue
+            break
 
         for item in self.requests:
             self.query(**item)
